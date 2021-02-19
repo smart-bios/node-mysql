@@ -1,19 +1,16 @@
 import {Request, Response} from 'express'
-import bcrypt from 'bcrypt';
-import User from '../models/user';
+import Specie from '../models/specie';
 
-export const getUser = async(req: Request, res: Response) => {
+export const getSpecie = async(req: Request, res: Response) => {
 
     try {
         const { id } = req.params;
-        const user = await User.findByPk(id, {
-            attributes: ["id",'username', 'email']
-        })
+        const specie = await Specie.findByPk(id)
 
         res.json({
             status: 'success',
-            msg: 'search user',
-            result: user
+            msg: 'search specie',
+            result: specie
             
         })
         
@@ -26,17 +23,15 @@ export const getUser = async(req: Request, res: Response) => {
     }
 }
 
-export const listUsers = async(req: Request, res: Response) => {
+export const listSpecies = async(req: Request, res: Response) => {
 
     try {
-        const users = await User.findAll({
-            attributes: ["id",'username', 'email']
-        });
+        const species = await Specie.findAll();
 
         res.json({
             status: 'success',
-            msg: 'List users',
-            result: users
+            msg: 'List species',
+            result: species
         });
 
     } catch (error) {
@@ -49,27 +44,26 @@ export const listUsers = async(req: Request, res: Response) => {
     }
 }
 
-export const addUser = async( req: Request, res: Response ) => {
+export const addSpecie = async( req: Request, res: Response ) => {
 
     try {
-        let { username,  email,  password } = req.body
+        let { scientific_name } = req.body
 
-        const emailExist = await User.findOne({where: {email}});
+        const specieExist = await Specie.findOne({where: {scientific_name}});
 
-        if(emailExist){
+        if(specieExist){
             return res.status(400).json({
                 status: 'warning',
-                msg: `El email ya esta registrado: ${email}`
+                msg: `La especie ${scientific_name} ya esta registrada`
             })
         }
         
-        password = await bcrypt.hash(password, 10);
-        const user = await User.create({username, email, password})        
+        const specie = await Specie.create(req.body)        
 
         res.json({
             status: 'success',
             msg: 'add user',
-            result: user
+            result: specie
         })
 
         
@@ -82,22 +76,22 @@ export const addUser = async( req: Request, res: Response ) => {
     }
 }
 
-export const editUser = async( req: Request, res: Response ) => {
+export const editSpecie = async( req: Request, res: Response ) => {
 
     try {
         const { id } = req.params;
         const { body } = req;
 
-        const user = await User.findByPk(id);
+        const specie = await Specie.findByPk(id);
 
-        if(!user){
+        if(!specie){
             return res.status(400).json({
                 status: 'warning',
                 msg: `No existe el registro para actualizar`
             })
         }
 
-        await User.update( body, {where: {id}} );
+        await Specie.update( body, {where: {id}} );
 
         res.json({
             status: 'success',
@@ -114,21 +108,21 @@ export const editUser = async( req: Request, res: Response ) => {
     }
 }
 
-export const deleteUser = async( req: Request, res: Response ) => {
+export const deleteSpecie = async( req: Request, res: Response ) => {
 
     try {
         const { id } = req.params;
 
-        const user = await User.findByPk(id);
+        const specie = await Specie.findByPk(id);
 
-        if(!user){
+        if(!specie){
             return res.status(400).json({
                 status: 'warning',
                 msg: `No existe el registro para Eliminar`
             })
         }
 
-        await User.update( {status:false}, {where: {id}} );
+        await Specie.destroy({where: { id } })
 
         res.json({
             status: 'success',

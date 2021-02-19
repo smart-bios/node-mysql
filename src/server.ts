@@ -1,9 +1,12 @@
-
-import express from 'express';
-import Rutas from './routes';
-import cors from 'cors';
 import path from 'path';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
 
+
+import Rutas from './routes';
+import db from './database';
 
 class Server {
     private app: express.Application;
@@ -12,13 +15,26 @@ class Server {
     constructor(){
         this.app = express();
         this.port = process.env.PORT || '8000';
-
+        this.dbConnection();
         this.middlewares();
         this.routes();
     }
 
+    async dbConnection(){
+        try {
+            await db.authenticate();
+            console.log('Conectado a base de datos labinia');
+
+        } catch (error) {
+            throw new Error( error );
+        }
+
+    }
+
     middlewares(){
         this.app.use( cors() );
+        this.app.use( helmet() );
+        this.app.use( morgan('tiny') );
         this.app.use( express.json() );
         this.app.use( express.static(path.join(__dirname ,'/public')));
     }
