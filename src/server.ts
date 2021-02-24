@@ -3,10 +3,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import dotenv from 'dotenv';
 
 
 import Rutas from './routes';
 import db from './database';
+dotenv.config();
 
 class Server {
     private app: express.Application;
@@ -14,7 +16,7 @@ class Server {
 
     constructor(){
         this.app = express();
-        this.port = process.env.PORT || '8000';
+        this.port = process.env.PORT || '3000';
         this.dbConnection();
         this.middlewares();
         this.routes();
